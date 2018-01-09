@@ -13,13 +13,13 @@ GAME FUNCTION:
 let min = 1,
   max = 10,
   winningNum = 2, // temp hard coded 
-  guesses = 3;
+  guessesLeft = 3;
   
 // UI elements 
 const game = document.querySelector('#game'),
   minNum = document.querySelector('.min-num'), 
   maxNum = document.querySelector('.max-num'), 
-  guessesLeft = document.querySelector('.guesses'),
+  guesses = document.querySelector('.guesses'),
   guessBtn = document.querySelector('#guess-btn'),
   guessInput = document.querySelector('#guess-input'),
   message= document.querySelector('.message');
@@ -27,29 +27,57 @@ const game = document.querySelector('#game'),
 // Assign UI min/max 
 minNum.textContent = min;
 maxNum.textContent = max;
-guessesLeft.textContent = guesses;
+guesses.textContent = guessesLeft;
 
 // Listener for guess 
 guessBtn.addEventListener('click', function () {
   let guess = parseInt(guessInput.value); 
-  console.log(guess);
   // Validate 
   if (isNaN(guess) || guess < min || guess > max) {
     setMessage(`Please enter a number between ${min} and ${max}`, 'red');
+    
+    return;
   }
   
   // Check for win 
   if (guess === winningNum) {
-    // Disable input 
-    guessInput.disabled = true;
-    // Change border color 
-    guessInput.style.borderColor = 'green';
-    // Notify player of win 
-    setMessage(`${winningNum} is correct, YOU WIN!`, 'green');
+    // Game over - win 
+    gameOver(true, `${winningNum} is the correct number - YOU WIN!`);
   } else {
+    // Subtract 1 from guessesLeft 
+    guessesLeft -= 1;
+    // Update guesses left display 
+    guesses.textContent = guessesLeft;
     
+    // Check if remaining guesses
+    if (guessesLeft === 0) {
+      // Game over - loss 
+      gameOver(false, `${guess} is incorrect and you have no more guesses. Sorry, game over - you lose`);
+
+    } else {
+      // Game continues
+      // Notify player guess is incorrect, guess again 
+      setMessage(`${guess} is incorrect - Guess again`, 'red');
+      // Change border color 
+      guessInput.style.borderColor = 'red';
+      // Clear input 
+      guessInput.value = '';
+    }
   }
 });
+
+// Game over 
+function gameOver(won, msg) {
+  let color;
+  // Set color variable 
+  won === true ? color = 'green' : color = 'red';
+  // Disable input 
+  guessInput.disabled = true;
+  // Change border color 
+  guessInput.style.borderColor = color;
+  // Notify player of win 
+  setMessage(msg, color);
+}
 
 // Set message function 
 function setMessage(msg, color) {
